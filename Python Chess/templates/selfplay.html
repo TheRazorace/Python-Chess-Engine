@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chessboard.css') }}"
+     type= "text/css">
+     
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/chessboard-1.0.0.js') }}"></script>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid  mine">
+
+
+    <div class="row justify-content: left;">
+        <h3> Engine VS Engine </h3>
+    </div>
+    
+    <div class="row">
+        <div id="board" style="width: 400px"></div>
+    </div>
+    
+    <br>
+    
+        <div class="row">
+            <button type="button" class="btn btn-outline-dark"
+            id="startBtn" onclick="fetch_move()">Start Game</button>
+            <div class = "col-1"></div>
+        
+        
+            <button type="button" class="btn btn-outline-dark"
+            id="resetBtn" onclick="reset_board()">Reset Game</button>
+        
+        </div>
+   
+    <span id="starting_fen" style="display:none">{{starting_fen}}</span>
+
+</div>
+
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/selfplay.js') }}"></script>
+
+
+{% endblock %}

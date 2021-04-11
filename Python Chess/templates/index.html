@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chess_main.css') }}"
+     type= "text/css">
+{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid  mine">
+
+    <div class="row">
+        <h1> Python Chess Engine </h1>
+    </div>
+    
+    <div class="row btn-up">
+        <button id="versusplay" type="button" class="btn btn-outline-dark btn-lg"
+        onclick="window.location.href='/versusplay'">Player vs AI</button>
+    </div>
+    
+    <div class="row btn-down">
+        <button id="selfplay" type="button" class="btn btn-outline-dark btn-lg"
+        onclick="window.location.href='/selfplay'">AI vs AI</button>
+    </div>
+
+</div>
+{% endblock %}
+
+
