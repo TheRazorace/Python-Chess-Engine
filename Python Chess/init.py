@@ -1,37 +1,13 @@
 from flask import Flask, render_template, request, jsonify
-import chess
-import chess.svg
-import random
-
-class Board():
-    
-    def __init__(self):        
-        self.board = chess.Board()
-        
-    def move(self, uci_move):
-        return self.board.push_uci(uci_move)
-        
-    def turn(self, player):
-        return "White" if player == chess.WHITE else "Black"
-    
-    def turn_num(self):
-        return len(self.board.move_stack)
-    
-    def reset(self):
-        self.__init__()
-        
-        
-def random_ai(board):
-    
-    move = random.choice(list(board.legal_moves))
-    return move.uci()
+from players import random_ai   
+from board import Board
 
 app = Flask(__name__)
 game = Board()   
 
 def run_app():
     app.run(debug = True)
-    
+
 
 @app.route('/')
 def index():
