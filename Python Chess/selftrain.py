@@ -3,11 +3,9 @@ import numpy as np
 from fen_transformation import fen_transform
 from keras import models
 import random
-from tempfile import TemporaryFile
 
-def selfplay(games_simed):
+def selfplay(games_simed, model):
     
-    model = models.load_model("engine_model")
     sys_random = random.SystemRandom()
     
     training_set = []
@@ -53,7 +51,7 @@ def selfplay(games_simed):
         if game.board.is_checkmate():
             result = not game.board.turn
         
-        print(match)
+        print("Match:", match)
         
         if result=="draw":
             for i in range(moves):
@@ -66,32 +64,31 @@ def selfplay(games_simed):
         else:
             for i in range(moves):
                 training_labels.append(1.0)
+                
         
     
     training_set = np.asarray(training_set)
     training_labels = np.asarray(training_labels)
     
-    with open('training_set.npy', 'wb') as f:
-        np.save(f, training_set)
-        
-    with open('training_labels.npy', 'wb') as f:
-        np.save(f, training_labels)
-    
-    return
+    return training_set, training_labels
 
 
 
 if __name__ == "__main__":
-    #games_simed = 100
-    #selfplay(games_simed)
     
-    model = models.load_model("engine_model")
+    games_simed = 100
+    for i in range(100):
+        print("Batch:", i+1, "\n")
+        
+        model = models.load_model("engine_model") 
+        training_set, training_labels = selfplay(games_simed, model)
+   
+        model.fit(training_set, training_labels,
+              batch_size=40, epochs=10, verbose=0)
+        
+        model.save("engine_model")
+        print("\n")
+        
     
-    with open('training_set.npy', 'rb') as f:
-        training_set = np.load(f)
-        
-    np.load('training_labels.npy', allow_pickle=True)
-        
-    model.fit(training_set, training_labels, validation_split=0.1,
-          batch_size=40, epochs=100, verbose=2)
+    
     
