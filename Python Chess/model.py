@@ -31,6 +31,9 @@ def neural_net():
     
     return model
 
+#model = neural_net()
+#model.save("selftrain_model")
+
 
 
 

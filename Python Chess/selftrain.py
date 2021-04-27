@@ -11,11 +11,18 @@ def selfplay(games_simed, model):
     training_set = []
     training_labels = []
     
-    for match in range(games_simed):
+    wins = 0
+    draws = 0
+    losses = 0
     
+    for match in range(games_simed):
+        
+        print("Match:", match)
         game = Board()
         prediction_set = []
+        moves_set = []
         moves = 0
+        
         while not game.board.is_game_over(claim_draw = True):
             
             legal_moves = game.legal_moves()
@@ -42,7 +49,7 @@ def selfplay(games_simed, model):
                 
             stohastic_choice = sys_random.choices(best_indices, weights=weights)[0]
             
-            training_set.append(prediction_set[stohastic_choice])
+            moves_set.append(prediction_set[stohastic_choice])
             prediction_set = []
             game.move(legal_moves[stohastic_choice])
             moves += 1
@@ -51,22 +58,26 @@ def selfplay(games_simed, model):
         if game.board.is_checkmate():
             result = not game.board.turn
         
-        print("Match:", match)
         
-        if result=="draw":
+        if result==False:
+            losses += 1
             for i in range(moves):
-                training_labels.append(0.0)
-        
-        elif result==False:
-            for i in range(moves):
-                training_labels.append(-1.0)
+                training_labels.append(-1.0) 
+                training_set.append(moves_set[i])
                 
-        else:
+        elif result==True:
+            wins += 1
             for i in range(moves):
                 training_labels.append(1.0)
+                training_set.append(moves_set[i])
                 
-        
-    
+        else: 
+            draws += 1
+                
+             
+    print("Wins:", wins, "Draws:", draws, "Losses:", losses, "\n")
+                
+
     training_set = np.asarray(training_set)
     training_labels = np.asarray(training_labels)
     
@@ -78,16 +89,16 @@ if __name__ == "__main__":
     
     games_simed = 100
     for i in range(100):
-        print("Batch:", i+1, "\n")
+        print("\nBatch:", i+1, "\n")
         
-        model = models.load_model("engine_model") 
+        model = models.load_model("selftrain_model") 
         training_set, training_labels = selfplay(games_simed, model)
-   
-        model.fit(training_set, training_labels,
-              batch_size=40, epochs=10, verbose=0)
         
-        model.save("engine_model")
-        print("\n")
+        if (len(training_set) > 0):
+            model.fit(training_set, training_labels,
+              batch_size=40, epochs=10, verbose=2)
+        
+        model.save("selftrain_model")
         
     
     
