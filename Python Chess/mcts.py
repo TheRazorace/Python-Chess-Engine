@@ -1,14 +1,15 @@
-import math
 import numpy as np
 from board import Board
+from fen_transformation import fen_transform
+from keras import models
+import random
 
-def ucb_score(parent, child):
+def ucb_score(parent, child, player):
     
-    node_score = child.value()
-    prior_score = 1.4 * math.sqrt(
-                  math.log(parent.visit_count)/child.visit_count)
+    score = child.value(parent, player)
     
-    return node_score + prior_score
+    #print(score)
+    return score
 
 class Node:
     
@@ -23,40 +24,45 @@ class Node:
     def expanded(self):
         return len(self.children) > 0
     
-    def value(self):
+    def value(self, parent, player):
         
         if self.visit_count == 0:
-            return 0
+            return player*np.inf
         
-        return self.value_sum/ self.visit_count
+        node_score = self.value_sum/ self.visit_count
+        prior_score = 1.4* np.sqrt(
+                np.log(parent.visit_count)/self.visit_count)
+        return node_score + player*prior_score
     
-    
-    def select_action(self, temperature):
-        
-        visit_counts = np.array([child.visit_count for child in self.clidren.values()])
-        actions = [action for action in self.children.keys()]
-        
-        if temperature == 0:
-            action = actions[np.argmax(visit_counts)]
-        else:
-            visit_count_distribution = visit_counts ** (1 / temperature)
-            visit_count_distribution = visit_count_distribution / sum(visit_count_distribution)
-            action = np.random.choice(actions, p=visit_count_distribution)
-
-        return action
     
     def select_child(self):
         
-        best_score = -1000
+        best_score = -self.player*np.inf
+        best_action = 0
+        best_child = self.children[0]
         
         index = 0
-        for child in self.children:
-            score = ucb_score(self, child)
-            if score > best_score:
-                best_score = score
-                best_action = self.moves[index]
-                best_child = child
-            index += 1 
+        
+        if self.player==1:
+            for child in self.children:
+                score = ucb_score(self, child, self.player)
+    
+                if score > best_score:
+                    best_score = score
+                    best_action = index
+                    best_child = child
+                index += 1 
+                
+        elif self.player==-1:
+            for child in self.children:
+                score = ucb_score(self, child, self.player)
+    
+                if score < best_score:
+                    best_score = score
+                    best_action = index
+                    best_child = child
+                index += 1
+            
                 
         return best_action, best_child
     
@@ -67,32 +73,39 @@ class Node:
         
         legal_fens = game.legal_fens()
         for i in range(len(legal_fens)):
-            self.children[i] = Node(player = self.player*-1)
+            self.children.append(Node(player = self.player*-1))
+                               
             
         return
     
     
 class MCTS:
     
-    def _init_(self, game, model, games_simed):
+    def __init__(self, game, model, games_simed):
         self.game = game
         self.model = model
-        self.games_simed = games_simed
+        self.sims = games_simed
         
-    def run(self, model, game, player, turns_simed):
+    def run(self, game, model, player, turns_simed):
         
         root = Node(player)
-        game.reset()
         root.expand(game, player)
+        fen = game.fen()
+        game.reset_to_specific(fen)
         
         for i in range(self.sims):
+            #print("sim", i+1)
+            prediction_set = []
             node = root
             path = [node]
             
             #Select
             while node.expanded():
+                #print()
+                #print("row:", row)
                 action, node = node.select_child()
-                game.move(action)
+                game.move(game.legal_moves()[action])
+                #print(action)
                 path.append(node)
             
             parent = path[-2]
@@ -100,23 +113,90 @@ class MCTS:
             #If game has not ended: Expand
             if reward is None:
                 node.expand(game, parent.player * -1)
-                fen_table = fen_transform(game.fen())
-                prediction_set.append(fen_table)
-                prediction_set = np.asarray(prediction_set)
-                reward = model.predict(prediction_set).reshape(len(prediction_set))
+                
+                #Simulation
+                reward = self.simulate(game, turns_simed)
+                 
+                if reward is None:
+                    fen_table = fen_transform(game.fen())
+                    prediction_set.append(fen_table)
+                    prediction_set = np.asarray(prediction_set)
+                    reward = model.predict(prediction_set).reshape(len(prediction_set))
+                    #print()
+                    #print(reward)
+                
                 
             #Backpropagate
-            self.backpropagate(path, reward, parent.player * -1)
-                
-    return root
+            self.backpropagate(path, reward)
+            game.reset_to_specific(fen)
+         
+        
+        best_move = self.get_best_move(root, player)
+                        
+        return best_move
 
-    def backpropagate(self, path, reward, player):
+    def backpropagate(self, path, reward):
         
         for node in reversed(path):
-            node.value_sum += reward
+            node.value_sum += 5*reward 
             node.visit_count += 1
-                
             
+        return
+
+    
+    def simulate(self, game, turns_simed):
+        
+        for i in range(turns_simed):
+            reward = game.state_reward()
+            if reward is None:
+                legal_moves = game.legal_moves()
+                game.move(legal_moves[random.randint(0, len(legal_moves)-1)])
+            else:
+                break
+        
+        return reward
+    
+    def get_best_move(self, root, player):
+        
+        best_avg_value = -np.inf*player
+        best_node = 0
+        index = 0
+        
+        if player==1:
+            for node in root.children:
+                avg_value = node.visit_count
+                if avg_value>best_avg_value:
+                    best_avg_value = avg_value
+                    best_node = index
+                index += 1
+                
+        else:
+            for node in root.children:
+                avg_value = node.visit_count
+                if avg_value>best_avg_value:
+                    avg_value = best_avg_value
+                    best_node = index
+                index += 1
+            
+            
+        return game.legal_moves()[best_node]
+        
+        
+        
+             
+                
+game = Board()
+model = models.load_model("selftrain_model")
+player = -1 
+sims = 1000
+turns_simed = 5      
+for i in range(3):
+    mcts = MCTS(game, model, sims)
+    move = mcts.run(game, model, player, turns_simed)
+    print(move)
+                    
+                
+
                 
     
     

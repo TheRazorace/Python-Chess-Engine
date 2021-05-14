@@ -4,7 +4,7 @@ import chess
 class Board():
     
     def __init__(self):        
-        self.board = chess.Board()
+        self.board = chess.Board("2k5/8/3p1Q1q/2r2PB1/1R2B1K1/5p1p/P1b1r3/6N1 b - - 0 1")
         
     def move(self, uci_move):
         return self.board.push_uci(uci_move)
@@ -34,6 +34,21 @@ class Board():
             self.reset_to_specific(current_fen)
             
         return fens
+    
+    def state_reward(self):
+        
+        result = None
+        if self.board.is_checkmate():
+            result = not self.board.turn
+            
+        if result == True:
+            return 1
+        
+        elif result == False: 
+            return -1
+        
+        else:
+            return None
     
     def reset_to_specific(self, fen):
          self.board = chess.Board(fen)

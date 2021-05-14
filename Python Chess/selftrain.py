@@ -35,9 +35,9 @@ def selfplay(games_simed, model, distributions, selfgames):
             predictions = model.predict(prediction_set).reshape(len(prediction_set))
             
             if moves%2 == 0:
-                best_indices = predictions.argsort()[-(int(len(predictions)/4) + 1):][::-1]
+                best_indices = predictions.argsort()[-(int(len(predictions)/5) + 1):][::-1]
             else:
-                best_indices = (-predictions).argsort()[-(int(len(predictions)/4) + 1):][::-1]
+                best_indices = (-predictions).argsort()[-(int(len(predictions)/5) + 1):][::-1]
                 
  
             weights = distributions[len(best_indices) - 1]
