@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, jsonify
-from players import random_ai   
+import players   
 from board import Board
 
 app = Flask(__name__)
-game = Board()   
+game = Board() 
+mcts1 = None
+mcts2 = None
+model_name1 = None
+model_name2 = None
+sims1 = 400
+sims2 = 400
+turns_simed = 10
 
 def run_app():
     app.run(debug = True)
@@ -26,21 +33,24 @@ def selfplay():
 
 @app.route('/versusplay')
 def versusplay():
+    global mcts1
+    
+    mcts1 = players.initialize_mcts("selftrain_model")
     game.reset()       
     return render_template('versusplay.html',
-           starting_fen = game.board.fen(),
-           first_moves = list(move.uci() for move in game.board.legal_moves))
+        starting_fen = game.board.fen(),
+        first_moves = list(move.uci() for move in game.board.legal_moves))
 
 
 @app.route('/selfmove', methods=['GET', 'POST'])
 def selfmove():
     
     while not game.board.is_game_over(claim_draw = True):
-        color = game.turn(game.board.turn)
+        color = game.turn_str(game.board.turn)
         if color == "White":
-            uci = random_ai(game.board)
+            uci = players.random_ai(game.board)
         else:
-            uci = random_ai(game.board) 
+            uci = players.random_ai(game.board) 
             
         game.move(uci)
 
@@ -63,7 +73,7 @@ player_move = None
 def get_player_move():
     global player_move
     
-    while game.turn(game.board.turn) == "Black":
+    while game.turn_str(game.board.turn) == "Black":
         pass
     game.move(player_move)
     isgameover = game.board.is_game_over()
@@ -79,11 +89,11 @@ def get_player_move():
 @app.route('/get_engine_move', methods=['GET', 'POST'])
 def get_engine_move():
     
-    while game.turn(game.board.turn) == "White":
+    while game.turn_str(game.board.turn) == "White":
         pass
     isgameover = game.board.is_game_over()
     if not isgameover:
-        engine_move = random_ai(game.board) 
+        engine_move = players.selftrained_ai(game) 
         game.move(engine_move)
         next_moves = list(move.uci() for move in game.board.legal_moves)
         
@@ -131,7 +141,7 @@ def check_result():
     
     result = "draw"
     if game.board.is_checkmate():
-        msg = "checkmate: " + game.turn(not game.board.turn) + " wins!"
+        msg = "checkmate: " + game.turn_str(not game.board.turn) + " wins!"
         result = not game.board.turn
     elif game.board.is_stalemate():
         msg = "draw: stalemate"
