@@ -3,6 +3,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/chess_main.css') }}"
      type= "text/css">
+     
 {% endblock %}
 
 {% block body %}
@@ -10,20 +11,99 @@
 <div class="container-fluid  mine">
 
     <div class="row">
-        <h1> Python Chess Engine </h1>
+        <h1> Python RL Chess Engine </h1>
     </div>
     
+    <!--
     <div class="row btn-up">
         <button id="versusplay" type="button" class="btn btn-outline-dark btn-lg"
         onclick="window.location.href='/versusplay'">Player vs AI</button>
+    </div> -->
+    
+    <div class="row btn-up">
+        <button id="versusplay" type="button" class="btn btn-outline-dark btn-lg"
+        data-bs-toggle="modal" data-bs-target="#modal1" onclick="show_vsmodal()">Player vs AI</button>
     </div>
     
-    <div class="row btn-down">
+    <div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="modal1Label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal1Label">Choose Opponent</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_vsmodal()"></button>
+          </div>
+          <div class="modal-body">
+            <select class="form-select">
+                <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_vsmodal()">Close</button>
+            <button type="button" class="btn btn-primary">Play</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="row btn-up">
         <button id="selfplay" type="button" class="btn btn-outline-dark btn-lg"
-        onclick="window.location.href='/selfplay'">AI vs AI</button>
+        data-bs-toggle="modal" data-bs-target="#modal2" onclick="show_spmodal()">AI vs AI</button>
+    </div>
+    
+    <div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2Label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal2Label">Choose Players</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_spmodal()"></button>
+          </div>
+          <div class="modal-body">
+            <h5>Choose white player</h5>
+            <select class="form-select">
+                <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+            </select>
+            <hr>
+            <h5>Choose black player</h5>
+            <select class="form-select">
+                <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_spmodal()">Close</button>
+            <button type="button" class="btn btn-primary">Confirm</button>
+          </div>
+        </div>
+      </div>
     </div>
 
 </div>
+
+<script> 
+    function show_vsmodal(){
+        $('#modal1').modal("show")
+    }
+    
+    function hide_vsmodal(){
+        $('#modal1').modal("hide")
+    }
+    
+    function show_spmodal(){
+        $('#modal2').modal("show")
+    }
+    
+    function hide_spmodal(){
+        $('#modal2').modal("hide")
+    }
+    
+</script>
 {% endblock %}
+
 
 
