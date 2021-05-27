@@ -156,10 +156,9 @@ class NM_MCTS:
                 if len(legal_moves) > 0:
                     game.move(legal_moves[random.randint(0, len(legal_moves)-1)])
                 else:
-                    print(legal_moves)
-                    game.move(legal_moves[0])
+                    return 0 
             else:
-                break
+                return reward
         
         return reward
     
@@ -218,43 +217,5 @@ class NM_MCTS:
 # print()
 # for i in best_indices2:
 #     print(legal_moves[i])
-                
-
-                
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
 
 

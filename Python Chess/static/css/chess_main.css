@@ -32,6 +32,26 @@ h1 {
 }
 
 .btn{
-    
     border-radius: 30px;
 }
+
+span{
+    font-size: 20px;
+}
+
+.icon-div img{
+    width: 30px;
+} 
+
+.profile_div{
+    border:1px solid black;
+    background-color: white;
+    cursor: pointer;
+}
+
+
+
+
+
+
+

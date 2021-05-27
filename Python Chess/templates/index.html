@@ -25,84 +25,99 @@
         data-bs-toggle="modal" data-bs-target="#modal1" onclick="show_vsmodal()">Player vs AI</button>
     </div>
     
-    <div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="modal1Label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg" >
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modal1Label">Choose Opponent</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_vsmodal()"></button>
-          </div>
-          <div class="modal-body">
-            <select class="form-select">
-                <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
-                <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
-                <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
-            </select>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_vsmodal()">Close</button>
-            <button type="button" class="btn btn-primary">Play</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     
     <div class="row btn-up">
         <button id="selfplay" type="button" class="btn btn-outline-dark btn-lg"
         data-bs-toggle="modal" data-bs-target="#modal2" onclick="show_spmodal()">AI vs AI</button>
     </div>
     
-    <div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2Label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg" >
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modal2Label">Choose Players</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_spmodal()"></button>
-          </div>
-          <div class="modal-body">
-            <h5>Choose white player</h5>
-            <select class="form-select">
-                <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
-                <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
-                <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
-            </select>
-            <hr>
-            <h5>Choose black player</h5>
-            <select class="form-select">
-                <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
-                <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
-                <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
-            </select>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_spmodal()">Close</button>
-            <button type="button" class="btn btn-primary">Confirm</button>
+    <form method="POST" id="form">
+        <div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="modal1Label" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg" >
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal1Label">Choose Opponent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_vsmodal()"></button>
+              </div>
+              <div class="modal-body">
+                <h5>Choose side </h5>
+                <div class="row ">
+                    <div class="col-10 justify-content-around row ">
+                    <div class="profile_div white col-2 btn" role="button" onclick="choose_white()">
+                        <div class="icon-div row">
+                            <img src="../static/img/chesspieces/wikipedia/wK.png">
+                        </div>
+                        <div class="span-div row">
+                            <span>White</span>
+                        </div>
+                    </div>
+    
+                    <div class="profile_div black col-2 btn" role="button" onclick="choose_black()">
+                        <div class="icon-div row">
+                            <img src="../static/img/chesspieces/wikipedia/bK.png">
+                        </div>
+                        <div class="span-div row">
+                            <span>Black</span>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+    
+                <hr>
+                <h5>Choose opponent</h5>
+                <select class="form-select">
+                    <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                    <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                    <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_vsmodal()">Close</button>
+                <button type="button" class="btn btn-primary">Play</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+        
+        <div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2Label" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg" >
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal2Label">Choose Players</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_spmodal()"></button>
+              </div>
+              <div class="modal-body">
+                <h5><img src="../static/img/chesspieces/wikipedia/wK.png" style="width:45px;">Choose white player</h5>
+                <select class="form-select">
+                    <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                    <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                    <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+                </select>
+                <hr>
+                <h5><img src="../static/img/chesspieces/wikipedia/bK.png" style="width:45px;">Choose black player</h5>
+                <select class="form-select">
+                    <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                    <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                    <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_spmodal()">Close</button>
+                <button type="button" class="btn btn-primary">Confirm</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+    <div class="row">
+        <input id="send_color" type="hidden" name="color" value="white">
     </div>
+    
+    </form>
 
 </div>
 
-<script> 
-    function show_vsmodal(){
-        $('#modal1').modal("show")
-    }
-    
-    function hide_vsmodal(){
-        $('#modal1').modal("hide")
-    }
-    
-    function show_spmodal(){
-        $('#modal2').modal("show")
-    }
-    
-    function hide_spmodal(){
-        $('#modal2').modal("hide")
-    }
-    
-</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/chess_main.js') }}"></script>
 {% endblock %}
 
 

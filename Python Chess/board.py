@@ -4,13 +4,16 @@ import chess
 class Board():
     
     def __init__(self):        
-        self.board = chess.Board("2k5/8/3p1Q1q/2r2PB1/1R2B1K1/5p1p/P1b1r3/6N1 b - - 0 1")
+        self.board = chess.Board("R7/2p2P1p/3ppK2/B1bk4/b4R1P/2P5/6p1/7r w - - 0 1")
         
     def move(self, uci_move):
         return self.board.push_uci(uci_move)
         
-    def turn(self, player):
+    def turn_str(self, player):
         return "White" if player == chess.WHITE else "Black"
+    
+    def turn_int(self):
+        return 1 if self.board.turn == True else -1
     
     def turn_num(self):
         return len(self.board.move_stack)

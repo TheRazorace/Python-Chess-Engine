@@ -1,8 +1,5 @@
 import keras
 from keras import layers, activations, models
-from board import Board
-from fen_transformation import fen_transform
-import numpy as np
 
 def neural_net():
     
@@ -58,25 +55,15 @@ def refined_model():
     out = layers.Dense(1, activation = 'tanh')(d1)
     
     model = models.Model(inputs = [chessboard_input, turn_input], outputs = out)
-    opt = keras.optimizers.SGD(learning_rate=0.01, momentum = 0.3)
+    opt = keras.optimizers.SGD(learning_rate=0.001, momentum = 0.3)
     model.compile(loss = "mean_squared_error",
               optimizer = opt,
               metrics=['accuracy'])
     
     return model
-    
-    
-# model = models.load_model("selftrain_model")
-# weights = [layer.get_weights() for layer in model.layers[1:]]
 
-# new_model = refined_model()
-
-# for i in range(10):
-#     new_model.layers[i+1].set_weights(model.layers[i].get_weights())
-
-# new_model.layers[14].set_weights(model.layers[11].get_weights())
-
-# new_model.save("selftrain2_model")
+model = refined_model()
+model.save("selftrain2_model")
 
 
 
