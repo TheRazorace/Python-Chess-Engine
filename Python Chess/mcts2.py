@@ -128,7 +128,9 @@ class MCTS:
                     fen_table = fen_transform(game.fen())
                     prediction_set.append(fen_table)
                     prediction_set = np.asarray(prediction_set)
-                    reward = self.model.predict(prediction_set).reshape(len(prediction_set))
+                    turn = [game.turn_int()]
+                    turn_set = np.asarray(turn)
+                    reward = self.model.predict([prediction_set, turn_set]).reshape(len(prediction_set))
                     #print()
                     #print(reward)
                 
@@ -221,3 +223,4 @@ class MCTS:
 # print()
 # for i in best_indices2:
 #     print(legal_moves[i])
+
