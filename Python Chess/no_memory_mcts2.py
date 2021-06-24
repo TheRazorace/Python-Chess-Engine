@@ -4,9 +4,8 @@ from fen_transformation import fen_transform
 from keras import models
 import random
 import pandas as pd
-np.seterr(divide = 'ignore') 
 
-class Node:
+class NM_Node:
     
     def __init__(self, player, state):
         self.visit_count = 0
@@ -70,32 +69,25 @@ class Node:
             if legal_fens[i] in visited_df['fen'].values:
                 self.children.append(visited_df.loc[visited_df['fen'] == legal_fens[i]]['node'].values[0])
             else:    
-                self.children.append(Node(self.player*-1, legal_fens[i]))
+                self.children.append(NM_Node(self.player*-1, legal_fens[i]))
                                
             
         return 
     
     
-class MCTS:
+class NM_MCTS:
     
     def __init__(self, model):
         self.model = model
-        self.visited_df = pd.DataFrame(columns = ['node', 'fen'])
         
     def run(self, player, game, sims, turns_simed):
         
         fen = game.fen()
+        visited_df = pd.DataFrame(columns = ['node', 'fen'])
         
-        
-        #visited_df = pd.DataFrame(columns = ['node', 'fen'])
-        
-        if fen in self.visited_df['fen'].values:
-            root = self.visited_df.loc[self.visited_df['fen'] == fen]['node'].values[0]
-        
-        else:
-            root = Node(player, fen)
-            self.visited_df.loc[len(self.visited_df.index)] = (root, fen)
-            root.expand(game, player, self.visited_df)
+        root = NM_Node(player, fen)
+        visited_df.loc[len(visited_df.index)] = (root, fen)
+        root.expand(game, player, visited_df)
         
         for i in range(sims):
             #print("sim", i+1)
@@ -116,10 +108,9 @@ class MCTS:
             reward = game.state_reward()
             #If game has not ended: Expand
             if reward is None:
-                
-                if node.state not in self.visited_df['fen'].values:
-                    node.expand(game, parent.player * -1, self.visited_df)
-                    self.visited_df.loc[len(self.visited_df.index)] = (node, game.fen())
+                node.expand(game, parent.player * -1, visited_df)
+                if node.state not in visited_df['fen'].values:
+                    visited_df.loc[len(visited_df.index)] = (node, game.fen())
                 
                 #Simulation
                 reward = self.simulate(game, turns_simed)
@@ -193,8 +184,8 @@ class MCTS:
 # player = 1 
 # sims = 1000
 # turns_simed = 10 
-# mcts = MCTS(model)
-# for i in range(3):
+# mcts = NM_MCTS(model)
+# for i in range(1):
 #     move = mcts.run(player, game, sims, turns_simed)
 #     print(move)
 

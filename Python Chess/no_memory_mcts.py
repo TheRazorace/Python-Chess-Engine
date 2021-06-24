@@ -5,12 +5,6 @@ from keras import models
 import random
 import pandas as pd
 
-def ucb_score(parent, child, player):
-    
-    score = child.value(parent, player)
-    
-    return score
-
 class NM_Node:
     
     def __init__(self, player, state):
@@ -45,7 +39,7 @@ class NM_Node:
         
         if self.player==1:
             for child in self.children:
-                score = ucb_score(self, child, self.player)
+                score = child.value(self, 1)
     
                 if score > best_score:
                     best_score = score
@@ -55,7 +49,7 @@ class NM_Node:
                 
         elif self.player==-1:
             for child in self.children:
-                score = ucb_score(self, child, self.player)
+                score = child.value(self, -1)
     
                 if score < best_score:
                     best_score = score
@@ -156,7 +150,8 @@ class NM_MCTS:
                 if len(legal_moves) > 0:
                     game.move(legal_moves[random.randint(0, len(legal_moves)-1)])
                 else:
-                    return 0 
+                    reward = 0
+                    return reward
             else:
                 return reward
         

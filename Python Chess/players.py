@@ -1,36 +1,60 @@
 import random
-import mcts 
-import mcts2
+import no_memory_mcts
+import no_memory_mcts2
+import mcts
+#import mcts2
 from board import Board
 from tensorflow.keras.models import load_model
 
-def random_ai(board):
-    
-    move = random.choice(list(board.legal_moves))
-    return move.uci()
+# mcts1 = 1
+# mcts2 = 1
 
-def initialize_mcts(model_name):
+# def random_ai(board):
     
-    model = load_model(model_name)
-    mcts_tree = mcts.MCTS(model)
-    
-    return mcts_tree
+#     move = random.choice(list(board.legal_moves))
+#     return move.uci()
 
-def engine_move(game, mcts_tree, sims, turns_simed):
- 
-    move = mcts_tree.run(game.turn_int(), game, sims, turns_simed)
+# def initialize_engine1(model_name):
+#     global mcts1 
     
-    return move
+#     model = load_model(model_name)
+#     mcts1 = mcts.MCTS(model)
+    
+#     return 
+
+# def initialize_engine2(model_name):
+#     global mcts2
+    
+#     model = load_model(model_name)
+#     mcts2 = mcts.MCTS(model)
+    
+#     return 
+
+# def engine1_move(game, sims, turns_simed, model_name):
+#     #global mcts1
+    
+#     move = mcts1.run(game.turn_int(), game, sims, turns_simed)
+    
+#     return move
+
+# def engine_move(game, sims, turns_simed, model_name):
+#     #global mcts2
+    
+#     model = load_model(model_name)
+#     mcts_tree = mcts.MCTS(model)
+#     move = mcts_tree.run(game.turn_int(), game, sims, turns_simed)
+    
+#     return move
 
 
 games_simed = 50
-sims = 400
+sims = 500
 turns_simed = 10
 model1 = load_model("selftrain_model")
 model2 = load_model("selftrain2_model")
 
 old_model_wins = 0
-draws = 1
+draws = 0
 new_model_wins = 0
     
 for match in range(0, games_simed):
@@ -38,17 +62,15 @@ for match in range(0, games_simed):
     print("Match:", match+1)
     game = Board()
     moves = 0
-    mcts_1 = mcts.MCTS(model1)
-    mcts_2 = mcts2.MCTS(model2)
+    mcts_1 = no_memory_mcts.NM_MCTS(model1)
+    mcts_2 = no_memory_mcts2.NM_MCTS(model2)
     
     while not game.board.is_game_over(claim_draw = True):
          
         if moves%2 == 0:
-            player = 1
-            move = mcts_1.run(player, game, sims, turns_simed)
+            move = mcts_1.run(1, game, sims, turns_simed)
         else:
-            player = -1
-            move = mcts_2.run(player, game, sims, turns_simed)
+            move = mcts_2.run(-1, game, sims, turns_simed)
             
         game.move(move)
         moves += 1
@@ -73,5 +95,4 @@ for match in range(0, games_simed):
             
          
 print("Old model Wins:", old_model_wins, "Draws:", draws, "New model Wins:", new_model_wins, "\n")
-
 
