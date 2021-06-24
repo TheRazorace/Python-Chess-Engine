@@ -4,6 +4,7 @@ from fen_transformation import fen_transform
 from keras import models
 import random
 import pandas as pd
+import time
 np.seterr(divide = 'ignore') 
 
 class Node:
@@ -82,10 +83,11 @@ class MCTS:
         self.model = model
         self.visited_df = pd.DataFrame(columns = ['node', 'fen'])
         
-    def run(self, player, game, sims, turns_simed):
+    def run(self, player, game, time_limit, turns_simed):
         
         fen = game.fen()
-        
+        time_start = time.time() + time_limit
+        sims = 0
         
         #visited_df = pd.DataFrame(columns = ['node', 'fen'])
         
@@ -97,7 +99,7 @@ class MCTS:
             self.visited_df.loc[len(self.visited_df.index)] = (root, fen)
             root.expand(game, player, self.visited_df)
         
-        for i in range(sims):
+        while(time.time() < time_start):
             #print("sim", i+1)
             prediction_set = []
             node = root
@@ -136,10 +138,11 @@ class MCTS:
             #Backpropagate
             self.backpropagate(path, reward)
             game.reset_to_specific(fen)
+            sims += 1
          
         best_move = self.get_best_move(root, game)
                         
-        return best_move
+        return best_move, sims
 
     def backpropagate(self, path, reward):
         
@@ -185,16 +188,16 @@ class MCTS:
         
              
                 
-# game = Board()
-# model = models.load_model("selftrain_model")
-# #model2 = models.load_model("selftrain2_model")
-# player = 1 
-# sims = 1000
-# turns_simed = 10 
-# mcts = MCTS(model)
+game = Board()
+model = models.load_model("selftrain_model")
+#model2 = models.load_model("selftrain2_model")
+player = 1 
+time_limit = 20
+turns_simed = 10 
+mcts = MCTS(model)
 # for i in range(3):
-#     move = mcts.run(player, game, sims, turns_simed)
-#     print(move)
+move, num = mcts.run(player, game, time_limit, turns_simed)
+print(num)
 
 
 # legal_moves = game.legal_moves()
