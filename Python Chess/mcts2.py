@@ -2,6 +2,7 @@ import numpy as np
 from board import Board
 from fen_transformation import fen_transform
 from tensorflow.keras.models import load_model
+import tensorflow.keras.backend as keras_backend
 import random
 import pandas as pd
 import time
@@ -14,7 +15,6 @@ class Node:
         self.player = player
         self.value_sum = 0
         self.children = []
-        self.moves = []
         self.state = state
         
     def expanded(self):
@@ -133,7 +133,7 @@ class MCTS:
                     prediction_set = np.asarray(prediction_set)
                     turn = [game.turn_int()]
                     turn_set = np.asarray(turn)
-                    reward = self.model.predict([prediction_set, turn_set]).reshape(len(prediction_set))
+                    reward = keras_backend.get_value(self.model([prediction_set, turn_set]))[0][0]
                     #print()
                     #print(reward)
                 
@@ -145,7 +145,7 @@ class MCTS:
          
         best_move = self.get_best_move(root, game)
                         
-        return best_move, sims
+        return best_move
 
     def backpropagate(self, path, reward):
         
@@ -195,10 +195,10 @@ class MCTS:
 # model = load_model("selftrain_model")
 # model2 = load_model("selftrain2_model")
 # player = 1 
-# time_limit = 3
+# time_limit = 5
 # turns_simed = 10 
 # mcts = MCTS(model2)
-# for i in range(3):
+# #for i in range(3):
 # move, num = mcts.run(player, game, time_limit, turns_simed)
 # print(num)
 

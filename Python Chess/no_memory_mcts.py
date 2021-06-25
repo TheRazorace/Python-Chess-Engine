@@ -1,8 +1,9 @@
 import numpy as np
 from board import Board
 from fen_transformation import fen_transform
-from keras import models
+from tensorflow.keras.models import load_model
 import random
+import tensorflow.keras.backend as keras_backend
 import time
 import pandas as pd
 
@@ -13,7 +14,6 @@ class NM_Node:
         self.player = player
         self.value_sum = 0
         self.children = []
-        self.moves = []
         self.state = state
         
     def expanded(self):
@@ -21,17 +21,20 @@ class NM_Node:
     
     def value(self, parent, player):
         
+        #time1 = time.time()
         if self.visit_count == 0:
             return player*np.inf            
             
         node_score = self.value_sum/ self.visit_count
         prior_score = 1.4* np.sqrt(
                 np.log(parent.visit_count)/self.visit_count)
+        #print("time1:", time.time() - time1)
         return node_score + player*prior_score
     
     
     def select_child(self):
         
+        #time2 = time.time()
         best_score = -self.player*np.inf
         best_action = 0
         best_child = self.children[0]
@@ -58,11 +61,11 @@ class NM_Node:
                     best_child = child
                 index += 1
             
-                
+        #print("time2:", time.time() - time2)        
         return best_action, best_child
     
     def expand(self, game, player, visited_df):
-        
+        #time3 = time.time()
         self.player = player
         
         legal_fens = game.legal_fens()
@@ -72,7 +75,7 @@ class NM_Node:
             else:    
                 self.children.append(NM_Node(self.player*-1, legal_fens[i]))
                                
-            
+        #print("time3:", time.time() - time3)       
         return 
     
     
@@ -119,15 +122,17 @@ class NM_MCTS:
                 #Simulation
                 reward = self.simulate(game, turns_simed)
                  
+                #time4 = time.time()
                 if reward is None:
                     fen_table = fen_transform(game.fen())
                     prediction_set.append(fen_table)
                     prediction_set = np.asarray(prediction_set)
-                    reward = self.model.predict(prediction_set).reshape(len(prediction_set))
-                    #print()
+                    reward = keras_backend.get_value(self.model(prediction_set))[0][0]
                     #print(reward)
-                
-                
+                    #print(tf.keras.backend.get_value(reward)[0][0])
+                    #print()
+                #print("time4:", time.time() - time4) 
+            
             #Backpropagate
             self.backpropagate(path, reward)
             game.reset_to_specific(fen)
@@ -135,19 +140,19 @@ class NM_MCTS:
          
         best_move = self.get_best_move(root, game)
                         
-        return best_move, sims
+        return best_move
 
     def backpropagate(self, path, reward):
-        
+        #time5 = time.time()
         for node in reversed(path):
             node.value_sum += 20*reward 
             node.visit_count += 1
-            
+        #print("time5:", time.time() - time5)     
         return
 
     
     def simulate(self, game, turns_simed):
-        
+        #time6 = time.time()
         for i in range(turns_simed):
             reward = game.state_reward()
             if reward is None:
@@ -159,11 +164,11 @@ class NM_MCTS:
                     return reward
             else:
                 return reward
-        
+        #print("time6:", time.time() - time6) 
         return reward
     
     def get_best_move(self, root, game):
-        
+        #time7 = time.time()
         best_avg_value = -np.inf
         best_node = 0
         index = 0
@@ -174,7 +179,7 @@ class NM_MCTS:
                 best_avg_value = avg_value
                 best_node = index
             index += 1       
-            
+        #print("time7:", time.time() - time7)     
         return game.legal_moves()[best_node]
         
         
@@ -182,15 +187,16 @@ class NM_MCTS:
              
                 
 # game = Board()
-# model = models.load_model("selftrain_model")
-# #model2 = models.load_model("selftrain2_model")
+# model = load_model("selftrain_model")
+# #model2 = load_model("selftrain2_model")
 # player = 1 
-# time_limit = 4
+# time_limit = 5
 # turns_simed = 10 
 # mcts = NM_MCTS(model)
-# for i in range(1):
+# #for i in range(1):
 # move, num = mcts.run(player, game, time_limit, turns_simed)
 # print(num)
+
 
 
 # legal_moves = game.legal_moves()
