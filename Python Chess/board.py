@@ -1,10 +1,10 @@
-import chess
+import chess  
 
 
 class Board():
     
     def __init__(self):        
-        self.board = chess.Board("R7/2p2P1p/3ppK2/B1bk4/b4R1P/2P5/6p1/7r w - - 0 1")
+        self.board = chess.Board()
         
     def move(self, uci_move):
         return self.board.push_uci(uci_move)
@@ -13,7 +13,7 @@ class Board():
         return "White" if player == chess.WHITE else "Black"
     
     def turn_int(self):
-        return 1 if self.board.turn == True else -1
+        return 1.0 if self.board.turn == True else -1.0
     
     def turn_num(self):
         return len(self.board.move_stack)
@@ -59,7 +59,6 @@ class Board():
     def reset(self):
         self.__init__()
         
-    
     
 
 

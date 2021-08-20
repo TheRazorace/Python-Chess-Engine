@@ -36,7 +36,7 @@
           <div class="modal-dialog modal-dialog-centered modal-lg" >
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="modal1Label">Choose Opponent</h5>
+                <h5 class="modal-title" id="modal1Label">Choose Game Options</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hide_vsmodal()"></button>
               </div>
               <div class="modal-body">
@@ -64,16 +64,16 @@
                 </div>
     
                 <hr>
-                <h5>Choose opponent</h5>
-                <select class="form-select">
-                    <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
-                    <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
-                    <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+                <h5>Choose Opponents</h5>
+                <select class="form-select" name="opp_model">
+                    <option selected value="selftrain_model">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                    <option value="selftrain_model">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                    <option value="selftrain_model">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
                 </select>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_vsmodal()">Close</button>
-                <button type="button" class="btn btn-primary">Play</button>
+                <button type="submit" class="btn btn-primary">Play</button>
               </div>
             </div>
           </div>
@@ -88,30 +88,34 @@
               </div>
               <div class="modal-body">
                 <h5><img src="../static/img/chesspieces/wikipedia/wK.png" style="width:45px;">Choose white player</h5>
-                <select class="form-select">
-                    <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
-                    <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
-                    <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+                <select class="form-select" name="sp_model1">
+                    <option selected value="selftrain_model">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                    <option value="selftrain_model">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                    <option value="selftrain_model">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
                 </select>
                 <hr>
                 <h5><img src="../static/img/chesspieces/wikipedia/bK.png" style="width:45px;">Choose black player</h5>
-                <select class="form-select">
-                    <option selected value="1">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
-                    <option value="2">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
-                    <option value="3">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
+                <select class="form-select" name="sp_model2">
+                    <option selected value="selftrain_model">Combined Python RL Chess Engine (Trained both by selfplaying and using data)</option>
+                    <option value="selftrain_model">Data-Trained Python RL Chess Engine (Trained using data from professional matches)</option>
+                    <option value="selftrain_model">Self-Trained Python RL Chess Engine (Trained by selfplaying)</option>
                 </select>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="hide_spmodal()">Close</button>
-                <button type="button" class="btn btn-primary">Confirm</button>
+                <button type="submit" class="btn btn-primary">Confirm</button>
               </div>
             </div>
           </div>
         </div>
     
-    <div class="row">
-        <input id="send_color" type="hidden" name="color" value="white">
-    </div>
+        <div class="row">
+            <input id="send_color" type="hidden" name="color" value="White">
+        </div>
+        
+        <div class="row">
+            <input id="send_page" type="hidden" name="mode">
+        </div>
     
     </form>
 

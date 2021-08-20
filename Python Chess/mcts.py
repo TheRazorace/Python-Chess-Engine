@@ -2,8 +2,8 @@ import numpy as np
 from board import Board
 from fen_transformation import fen_transform
 from tensorflow.keras.models import load_model
-import random
 import tensorflow.keras.backend as keras_backend
+import random
 import pandas as pd
 import time
 np.seterr(divide = 'ignore') 
@@ -100,6 +100,7 @@ class MCTS:
             root.expand(game, player, self.visited_df)
         
         while(time.time() < time_start):
+        #for i in range(sims):
             #print("sim", i+1)
             prediction_set = []
             node = root
@@ -130,7 +131,9 @@ class MCTS:
                     fen_table = fen_transform(game.fen())
                     prediction_set.append(fen_table)
                     prediction_set = np.asarray(prediction_set)
-                    reward = keras_backend.get_value(self.model(prediction_set))[0][0]
+                    turn = [game.turn_int()]
+                    turn_set = np.asarray(turn)
+                    reward = keras_backend.get_value(self.model([prediction_set, turn_set]))[0][0]
                     #print()
                     #print(reward)
                 
@@ -190,12 +193,12 @@ class MCTS:
                 
 # game = Board()
 # model = load_model("selftrain_model")
-# #model2 = load_model("selftrain2_model")
+# model2 = load_model("selftrain2_model")
 # player = 1 
 # time_limit = 5
 # turns_simed = 10 
-# mcts = MCTS(model)
-# # for i in range(3):
+# mcts = MCTS(model2)
+# #for i in range(3):
 # move, num = mcts.run(player, game, time_limit, turns_simed)
 # print(num)
 
@@ -224,3 +227,5 @@ class MCTS:
 # print()
 # for i in best_indices2:
 #     print(legal_moves[i])
+
+

@@ -10,7 +10,8 @@ h1 {
 }
 
 .mine{
-    background-color: rgb(240,230,140);
+    background-color: #a38560;
+    background-image: linear-gradient(315deg, #a38560 0%, #e0d4ae 74%);
     background-position: center;
     width: 100%;
     min-height: 100vh;

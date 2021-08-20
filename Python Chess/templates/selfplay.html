@@ -4,8 +4,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/chessboard.css') }}"
      type= "text/css">
      
-<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/chessboard-1.0.0.js') }}"></script>
+
 
 {% endblock %}
 
@@ -17,9 +16,32 @@
     <div class="row justify-content: left;">
         <h3> Engine VS Engine </h3>
     </div>
+    <div class="row justify-content: left;">
+        <h6> 10|10 Game - 10 Minute Game with 10 Seconds Increment per Move  </h6>
+    </div>
     
-    <div class="row">
-        <div id="board" style="width: 400px"></div>
+    <div class="row justify-content-end">
+        <div id="board" style="width: 500px"></div>
+        <div class="col-3 log-box justify-content-center"> 
+            <div class="row p1-box"> <span id="player1"> Black </span> </div>
+            <div class="row timer-box" id="t1box">
+                 <span id="minutes1">10</span>
+                 <span>:</span>
+                 <span id="seconds1">00</span>
+            </div>
+            <br>
+            <div class="overflow-auto"  id = "scrollbox" style="max-width: 420px; max-height: 220px;">
+                <p id="history">Move History: <p>
+            </div>
+            <br>
+            <br>
+            <div class="row timer-box timer-box-bottom" id="t2box">
+                 <span id="minutes2">10</span>
+                 <span>:</span>
+                 <span id="seconds2">00</span>
+            </div>
+            <div class="row p2-box"> <span id="player2"> White </span> </div>
+        </div> 
     </div>
     
     <br>
@@ -36,10 +58,14 @@
         </div>
    
     <span id="starting_fen" style="display:none">{{starting_fen}}</span>
+    <span id="model1" style="display:none">{{model1}}</span>
+    <span id="model2" style="display:none">{{model2}}</span>
+    <span id="reset_text" style="display:none">Resetting game...</span>
 
 </div>
 
-
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/chessboard-1.0.0.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/selfplay.js') }}"></script>
 
 

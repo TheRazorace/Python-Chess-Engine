@@ -1,6 +1,6 @@
 from board import Board
 import numpy as np
-from keras import models
+#from keras import models
 
 game = Board()
 
@@ -12,6 +12,19 @@ rook_values = [0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
 queen_values = [0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
 king_values = [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 empty_position = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# piece_lists = [ [0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+#                 [0.0, 0.0, 0.0, 0.0, -1.0, 0.0],
+#                 [0.0, 0.0, 0.0, -1.0, 0.0, 0.0],
+#                 [0.0, 0.0, -1.0, 0.0, 0.0, 0.0],
+#                 [0.0, -1.0, 0.0, 0.0, 0.0, 0.0],
+#                 [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+#                 [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+#                 [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+#                 [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+#                 [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+#                 [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+#                 [0.0, 0.0, 0.0, 0.0, 0.0, 1.0] ]
 
 def fen_transform(fen):
     
@@ -30,6 +43,7 @@ def fen_transform(fen):
                 position_list.append(rook_values[pieces.index(char)])
                 position_list.append(queen_values[pieces.index(char)])
                 position_list.append(king_values[pieces.index(char)])
+                #position_list = piece_lists[pieces.index(char)]
                 row_list.append(position_list)
 
             else:

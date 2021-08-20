@@ -5,7 +5,8 @@ body, html{
 }
 
 .mine{
-    background-color: rgb(240,230,140);
+    background-color: #a38560;
+    background-image: linear-gradient(315deg, #a38560 0%, #e0d4ae 74%);
     background-position: center;
     width: 100%;
     min-height: 100vh;
@@ -19,9 +20,72 @@ body, html{
 }
 
 h3 {
-    margin: 40px;
+    margin: 20px;
     text-align: left;
     justify-content: left;
+}
+
+h6{
+    margin: 10px;
+}
+
+span{
+    font-size: 20px;
+}
+
+.log-box{
+    border-radius: 30px;
+    margin: 0px 66px 0px 66px;
+    background-color: #c3cbdc;
+    background-image: linear-gradient(147deg, #c3cbdc 0%, #edf1f4 74%);   
+}
+
+.p1-box{
+    background-color: #d2d8d6;
+    background-image: linear-gradient(315deg, #d2d8d6 0%, #dce8e0 74%);
+    border-radius: 40px;
+    border-bottom: solid black;
+}
+
+.p1-box:hover, .p2-box:hover{
+    background-color: #e4eee9;
+    background-image: linear-gradient(315deg, #e4eee9 0%, #93a5ce 74%);
+
+}
+
+.p2-box{
+    background-color: #d2d8d6;
+    background-image: linear-gradient(315deg, #d2d8d6 0%, #dce8e0 74%);
+    border-radius: 40px;
+    border-top: solid black;
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+p{
+    font-size: 16px;
+}
+
+#scrollbox{
+    padding: 10px;
+    background-color: inherit;
+    border-radius: 10px;
+}
+
+.timer-box{
+    background-color: #C8C8C8;
+    border-radius: 5px;
+    margin-left: 30%;
+    margin-right: 30%;
+    box-shadow: none;
+}
+
+.timer-box-bottom{
+    position:absolute;
+    bottom: 37px;
+    right: 3px;
+    width: 37%;
 }
 
 .clearfix-7da63 {

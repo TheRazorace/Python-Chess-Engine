@@ -1,8 +1,10 @@
 from board import Board
 import numpy as np
 from fen_transformation import fen_transform
-from keras import models
+from move_transformation import move_transform
+from tensorflow.keras.models import load_model
 import random
+import tensorflow as tf
 
 def selfplay(games_simed, model, distributions, selfgames):
     
@@ -10,13 +12,14 @@ def selfplay(games_simed, model, distributions, selfgames):
     training_set = []
     training_turn_set = []
     training_labels = []
+    probability_labels = []
+    probability_fens = []
+    probability_turns = []
     
     wins = 0
     draws = 0
     losses = 0
     
-    wmul = 2
-    bmul = 7
     
     for match in range(games_simed):
         
@@ -44,18 +47,22 @@ def selfplay(games_simed, model, distributions, selfgames):
             
             prediction_set = np.asarray(prediction_set)
             turn_set = np.asarray(turn_set)
-            predictions = model.predict([prediction_set,turn_set]).reshape(len(prediction_set))
+            #predictions = model.predict([prediction_set,turn_set]).reshape(len(prediction_set))
+            predictions = tf.keras.backend.get_value(model([prediction_set, turn_set])).flatten()
             
             if moves%2 == 0:
-                best_indices = predictions.argsort()[-(int(len(predictions)/wmul) + 1):][::-1]
+                best_indices = predictions.argsort()[-(int(len(predictions)/6) + 1):][::-1]
             else:
-                best_indices = (-predictions).argsort()[-(int(len(predictions)/bmul) + 1):][::-1]
+                best_indices = (-predictions).argsort()[-(int(len(predictions)/6) + 1):][::-1]
                 
             weights = distributions[len(best_indices) - 1]
  
             stohastic_choice = sys_random.choices(best_indices, weights=weights)[0]
             
             moves_set.append(prediction_set[stohastic_choice])
+            probability_fens.append(fen_transform(game.fen()))
+            probability_labels.append(move_transform(legal_moves[stohastic_choice]))
+            probability_turns.append(game.turn_int())
             game.move(legal_moves[stohastic_choice])
             moves += 1
             
@@ -88,38 +95,23 @@ def selfplay(games_simed, model, distributions, selfgames):
              
     print("Wins:", wins, "Draws:", draws, "Losses:", losses, "\n")
     
-    if wins > losses + 15:
-        if wins > losses + 35:
-            wmul = 3
-            bmul = 9
-        elif wins > losses + 25:
-            wmul = 3
-            bmul = 8
-        else:
-            wmul = 4
-            bmul = 8
-        
-    elif losses > wins + 15:
-        if losses > wins + 35:
-            bmul = 5
-            wmul = 7
-        elif losses > wins + 25:
-            bmul = 5
-            wmul = 6
-        else:
-            bmul = 6
-            wmul = 6
-        
-    else:
-        wmul = 5
-        bmul = 7
                 
     training_set = np.asarray(training_set)
     training_turn_set = np.asarray(training_turn_set)
     training_labels = np.asarray(training_labels)
+    probability_labels = np.asarray(probability_labels)
+    probability_fens = np.asarray(probability_fens)
+    probability_turns = np.asarray(probability_turns)
     new_selfgames = selfgames + losses + wins
     
-    return training_set, training_turn_set, training_labels, new_selfgames
+    # if wins>losses + 2:
+    #     training_set = []
+    #     training_turn_set = []
+    #     training_labels = []
+    #     new_selfgames = selfgames
+    
+    return (training_set, training_turn_set, training_labels, probability_fens,
+            probability_turns, probability_labels, new_selfgames)
 
 def create_distributions():
     
@@ -138,28 +130,43 @@ def create_distributions():
 
 if __name__ == "__main__":
     
+    # game = Board()
+    # probability_model = load_model("selftrain_probability_model.h5") 
+    # print(probability_model.predict(
+    #     [np.asarray([fen_transform(game.fen())]),np.asarray([game.turn_int()])]))
+    
+    
     distributions = create_distributions()  
-    games_simed = 200
-    for i in range(100):
+    games_simed = 50
+    batch_size = 15
+    for i in range(40):
         print("\nBatch:", i+1, "\n")
         
-        file = open("selfgames2.txt","r+")
+        file = open("selfgames3.txt","r+")
         selfgames = int(file.read())
         file.close()
         
-        model = models.load_model("selftrain2_model") 
-        training_set, training_turn_set, training_labels, new_selfgames = selfplay(games_simed, model,
+        model = load_model("selftrain3_model.h5") 
+        probability_model = load_model("selftrain_probability_model.h5") 
+        (training_set, training_turn_set, training_labels, probability_fens,
+            probability_turns, probability_labels, new_selfgames) = selfplay(games_simed, model,
         distributions, selfgames)
         
         if (len(training_set) > 0):
             model.fit([training_set, training_turn_set], training_labels,
-              batch_size=5, epochs=10, verbose=2)
+              batch_size=64, epochs=15, verbose=2)
+            print("\n")
+        probability_model.fit([probability_fens, probability_turns], probability_labels,
+              batch_size=164, epochs=15, verbose=2)    
             
-        model.save("selftrain2_model")
+        model.save("selftrain3_model.h5")
+        probability_model.save("selftrain_probability_model.h5")
         
-        file = open("selfgames2.txt","w+")
+        file = open("selfgames3.txt","w+")
         file.write(str(new_selfgames))
         file.close()
+        
+
 
         
     

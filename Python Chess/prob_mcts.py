@@ -2,6 +2,7 @@ import numpy as np
 from board import Board
 from fen_transformation import fen_transform
 from tensorflow.keras.models import load_model
+from move_transformation import predict_probability
 import random
 import time
 #import pandas as pd
@@ -11,12 +12,13 @@ import tensorflow as tf
 
 class NM_Node:
     
-    def __init__(self, player, state):
+    def __init__(self, player, state, prob):
         self.visit_count = 0
         self.player = player
         self.value_sum = 0
         self.children = []
         self.state = state
+        self.prob = prob
         
     def expanded(self):
         return len(self.children) > 0
@@ -24,10 +26,10 @@ class NM_Node:
     def value(self, parent, player):
         
         if self.visit_count == 0:
-            return player*np.inf            
+            return player*10*self.prob          
             
         node_score = self.value_sum/ self.visit_count
-        prior_score = 1.4* np.sqrt(
+        prior_score = 5*self.prob* np.sqrt(
                 np.log(parent.visit_count)/self.visit_count)
         return node_score + player*prior_score
     
@@ -45,8 +47,6 @@ class NM_Node:
                 score = child.value(self, 1)
     
                 if score > best_score:
-                    if score == np.inf:
-                        return index, child
                     best_score = score
                     best_action = index
                     best_child = child
@@ -58,8 +58,6 @@ class NM_Node:
                 score = child.value(self, -1)
     
                 if score < best_score:
-                    if score == -np.inf:
-                        return index, child
                     best_score = score
                     best_action = index
                     best_child = child
@@ -69,16 +67,18 @@ class NM_Node:
                 
         return best_action, best_child
     
-    def expand(self, game, player):
+    def expand(self, game, player, prob_model):
         
         self.player = player
         
         legal_fens = game.legal_fens()
+        probs_list = predict_probability(game, prob_model)
         for i in range(len(legal_fens)):
             #if legal_fens[i] in visited_df['fen'].values:
             #    self.children.append(visited_df.loc[visited_df['fen'] == legal_fens[i]]['node'].values[0])
-            #else:    
-            self.children.append(NM_Node(self.player*-1, legal_fens[i]))
+            #else:  
+            
+            self.children.append(NM_Node(self.player*-1, legal_fens[i], probs_list[i]))
                                
             
         return 
@@ -86,8 +86,9 @@ class NM_Node:
     
 class NM_MCTS:
     
-    def __init__(self, model):
+    def __init__(self, model, prob_model):
         self.model = model
+        self.prob_model = prob_model
         
     def run(self, player, game, time_limit, turns_simed):
         
@@ -96,9 +97,10 @@ class NM_MCTS:
         time_start = time.time() + time_limit
         sims = 0
         
-        root = NM_Node(player, fen)
+        prob_list = predict_probability(game, self.prob_model)
+        root = NM_Node(player, fen, prob_list)
         #visited_df.loc[len(visited_df.index)] = (root, fen)
-        root.expand(game, player)
+        root.expand(game, player, self.prob_model)
         
         while(time.time() < time_start):
         #for i in range(sims):
@@ -121,7 +123,7 @@ class NM_MCTS:
             reward = game.state_reward()
             #If game has not ended: Expand
             if reward is None:
-                node.expand(game, parent.player * -1)
+                node.expand(game, parent.player * -1, self.prob_model)
                 #if node.state not in visited_df['fen'].values:
                     #visited_df.loc[len(visited_df.index)] = (node, game.fen())
                 
@@ -192,13 +194,13 @@ class NM_MCTS:
              
                 
 # game = Board()
-# #model = load_model("selftrain_model")
-# model2 = load_model("selftrain2_model.h5")
+# model1 = load_model("datatrain_model.h5")
+# model2 = load_model("datatrain_probability_model.h5")
 # player = 1 
-# time_limit = 5
+# time_limit = 10
 # turns_simed = 10 
-# mcts = NM_MCTS(model2)
 # for i in range(5):
+#     mcts = NM_MCTS(model1, model2)
 #     move, num = mcts.run(player, game, time_limit, turns_simed)
 #     print(move, num)
 
@@ -227,5 +229,7 @@ class NM_MCTS:
 # print()
 # for i in best_indices2:
 #     print(legal_moves[i])
+
+
 
 
