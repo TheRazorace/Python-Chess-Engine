@@ -1,10 +1,12 @@
 import random
-import no_memory_mcts
-import prob_mcts
+import mcts
+import mcts_no_prob
 # import mcts
 # import numpy as np
 # import mcts2
-from board import Board
+import chess
+#from board import Board
+import chess.engine
 from tensorflow.keras.models import load_model
 # from fen_transformation import fen_transform
 # import tensorflow.keras.backend as keras_backend
@@ -40,14 +42,40 @@ def random_ai(board):
     
 #     return move
 
-def engine_move(game, time_limit, turns_simed, model_name):
+def engine_move(game, time_limit, model_type):
     #global mcts2
     
-    model = load_model(model_name)
-    mcts_tree = no_memory_mcts.NM_MCTS(model)
-    move = mcts_tree.run(game.turn_int(), game, time_limit, turns_simed)
+    if model_type == "1":
+       ev_model = load_model("selftrain_model.h5")
+       mcts_tree = mcts_no_prob.MCTS(ev_model)
+       move = mcts_tree.run(game, time_limit, 0, 10)
+       return move
+    elif model_type == "2":
+       ev_model = load_model("datatrain_model.h5")
+       prob_model = load_model("datatrain_probability_model.h5")
+    elif model_type == "3":
+       ev_model = load_model("combined_model.h5")
+       prob_model = load_model("combined_probability_model.h5")
+    elif model_type == "4":
+       engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+       board = game.board
+       result = engine.play(board, chess.engine.Limit(time=0.5))
+       return str(result.move)
+    
+    mcts_tree = mcts.MCTS(ev_model, prob_model)
+    move = mcts_tree.run(game, time_limit)
     
     return move
+
+# engine = chess.engine.SimpleEngine.popen_uci("stockfish")
+
+# board = chess.Board()
+# while not board.is_game_over():
+#     result = engine.play(board, chess.engine.Limit(time=0.1))
+#     print(result.move)
+#     board.push(result.move)
+
+# engine.quit()
 
 # model = load_model("selftrain2_model.h5")
 # moves = 0
@@ -74,59 +102,59 @@ def engine_move(game, time_limit, turns_simed, model_name):
 # print(legal_moves)
 # print(predictions)
 
-games_simed = 50
-time_limit = 8
-turns_simed = 10
-model1 = load_model("datatrain_model.h5")
-model2 = load_model("datatrain_model.h5")
-prob_model = load_model("datatrain_probability_model.h5")
+# games_simed = 50
+# time_limit = 10
+# prob_mul = 1
+# model1 = load_model("datatrain_model.h5")
+# model2 = load_model("datatrain_model.h5")
+# prob_model = load_model("datatrain_probability_model.h5")
 
-old_model_wins = 0
-draws = 0
-new_model_wins = 0
+# old_model_wins = 0
+# draws = 0
+# new_model_wins = 0
     
-for match in range(0, games_simed):
+# for match in range(0, games_simed):
         
-    print("Match:", match+1)
-    game = Board()
-    moves = 0
-    mcts_1 = no_memory_mcts.NM_MCTS(model1)
-    mcts_2 = prob_mcts.NM_MCTS(model2, prob_model)
+#     print("Match:", match+1)
+#     game = Board()
+#     moves = 0
+#     mcts_1 = mcts.MCTS(model1, prob_model)
+#     mcts_2 = mcts.MCTS(model2, prob_model)
     
-    while not game.board.is_game_over(claim_draw = True):
+#     while not game.board.is_game_over(claim_draw = True):
          
-        if moves%2 == 0:
-            move = mcts_1.run(1, game, time_limit, turns_simed)
-        else:
-            move = mcts_2.run(-1, game, time_limit, turns_simed)
+#         if moves%2 == 0:
+#             move = mcts_1.run(game, time_limit, 0)
+#         else:
+#             move = mcts_2.run(game, time_limit, 4)
             
-        game.move(move)
-        moves += 1
-        # prediction_set = [ fen_transform(game.fen())]
-        # prediction_set = np.asarray(prediction_set)
-        # turn = [game.turn_int()]
-        # turn_set = np.asarray(turn)
-        # print(moves, float(keras_backend.get_value(model2([prediction_set, turn_set]))[0][0]))
-        print(moves)
+#         game.move(move)
+#         moves += 1
+#         # prediction_set = [ fen_transform(game.fen())]
+#         # prediction_set = np.asarray(prediction_set)
+#         # turn = [game.turn_int()]
+#         # turn_set = np.asarray(turn)
+#         # print(moves, float(keras_backend.get_value(model2([prediction_set, turn_set]))[0][0]))
+#         print(moves)
         
-    result = "draw"
-    if game.board.is_checkmate():
-        result = not game.board.turn
+#     result = "draw"
+#     if game.board.is_checkmate():
+#         result = not game.board.turn
     
-    if result=="draw":
-        draws += 1
+#     if result=="draw":
+#         draws += 1
                
-    elif result==False:
-        new_model_wins += 1 
+#     elif result==False:
+#         new_model_wins += 1 
             
-    else:
-        old_model_wins += 1
+#     else:
+#         old_model_wins += 1
         
-    print("\nOld Model Wins", old_model_wins) 
-    print("Draw", draws)                   
-    print("New Model Wins", new_model_wins, "\n")     
+#     print("\nOld Model Wins", old_model_wins) 
+#     print("Draw", draws)                   
+#     print("New Model Wins", new_model_wins, "\n")     
          
-print("Old model Wins:", old_model_wins, "Draws:", draws, "New model Wins:", new_model_wins, "\n")
+# print("Old model Wins:", old_model_wins, "Draws:", draws, "New model Wins:", new_model_wins, "\n")
 
 
 

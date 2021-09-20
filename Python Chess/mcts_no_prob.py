@@ -1,6 +1,5 @@
 import numpy as np
 from fen_transformation import fen_transform
-from move_transformation import predict_probability
 import random
 import time
 import tensorflow as tf
@@ -8,29 +7,28 @@ import tensorflow as tf
 
 class Node:
     
-    def __init__(self, player, state, prob):
+    def __init__(self, player, state):
         self.visit_count = 0
         self.player = player
         self.value_sum = 0
         self.children = []
         self.state = state
-        self.prob = prob
         
     def expanded(self):
         return len(self.children) > 0
     
-    def value(self, parent, player, prob_mul):
+    def value(self, parent, player):
         
         if self.visit_count == 0:
             return player*np.inf          
             
         node_score = self.value_sum/ self.visit_count
-        prior_score = prob_mul*self.prob* np.sqrt(
+        prior_score = 1.4*np.sqrt(
                 np.log(parent.visit_count)/self.visit_count)
         return node_score + player*prior_score
     
     
-    def select_child(self, prob_mul):
+    def select_child(self):
         
         best_score = -self.player*np.inf
         best_action = 0
@@ -40,7 +38,7 @@ class Node:
         
         if self.player==1:
             for child in self.children:
-                score = child.value(self, 1, prob_mul)
+                score = child.value(self, 1)
     
                 if score > best_score:
                     best_score = score
@@ -51,7 +49,7 @@ class Node:
                 
         elif self.player==-1:
             for child in self.children:
-                score = child.value(self, -1, prob_mul)
+                score = child.value(self, -1)
     
                 if score < best_score:
                     best_score = score
@@ -63,18 +61,14 @@ class Node:
                 
         return best_action, best_child
     
-    def expand(self, game, player, prob_model):
+    def expand(self, game, player):
         
         self.player = player
         
         legal_fens = game.legal_fens()
-        probs_list = predict_probability(game, prob_model)
-        for i in range(len(legal_fens)):
-            #if legal_fens[i] in visited_df['fen'].values:
-            #    self.children.append(visited_df.loc[visited_df['fen'] == legal_fens[i]]['node'].values[0])
-            #else:  
+        for i in range(len(legal_fens)): 
             
-            self.children.append(Node(self.player*-1, legal_fens[i], probs_list[i]))
+            self.children.append(Node(self.player*-1, legal_fens[i]))
                                
             
         return 
@@ -82,30 +76,21 @@ class Node:
     
 class MCTS:
     
-    def __init__(self, model, prob_model):
+    def __init__(self, model):
         self.model = model
-        self.prob_model = prob_model
         
-    def run(self, game, time_limit):
+    def run(self, game, time_limit, turns_simed, ev_mul):
         
-        turns_simed = 0
-        ev_mul = 5
-        prob_mul = 1.5
         player = game.turn_int()
         
         fen = game.fen()
-        #visited_df = pd.DataFrame(columns = ['node', 'fen'])
         time_start = time.time() + time_limit
         sims = 0
         
-        prob_list = predict_probability(game, self.prob_model)
-        root = Node(player, fen, prob_list)
-        #visited_df.loc[len(visited_df.index)] = (root, fen)
-        root.expand(game, player, self.prob_model)
+        root = Node(player, fen)
+        root.expand(game, player)
         
         while(time.time() < time_start):
-        #for i in range(sims):
-            #print("sims", i+1)
             prediction_set = []
             turn_set = []
             node = root
@@ -113,9 +98,7 @@ class MCTS:
             
             #Select
             while node.expanded():
-                #print()
-                #print("row:", row)
-                action, node = node.select_child(prob_mul)
+                action, node = node.select_child()
                 game.move(game.legal_moves()[action])
                 #print(action)
                 path.append(node)
@@ -124,7 +107,7 @@ class MCTS:
             reward = game.state_reward()
             #If game has not ended: Expand
             if reward is None:
-                node.expand(game, parent.player * -1, self.prob_model)
+                node.expand(game, parent.player * -1)
                 #if node.state not in visited_df['fen'].values:
                     #visited_df.loc[len(visited_df.index)] = (node, game.fen())
                 

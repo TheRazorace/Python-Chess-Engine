@@ -18,6 +18,7 @@ let t2box = document.getElementById("t2box");
 let timer1;
 let timer2;
 let time_increment = 10;
+let snd = document.getElementById("myAudio"); 
 
 let moves = 0;            
 let isgameover = false;
@@ -184,7 +185,7 @@ async function GET_data(){
         [isgameover, turn] = await GET_engine_move();
     }
     
-    if(isgameover===true){
+    if(isgameover===true || legal_moves.length == 0){
         GET_result();
     }
     reset_button.disabled = false;
@@ -248,6 +249,7 @@ async function GET_board(){
         }).then(function (text) {
             if(text.isgameover == false && reset==false){
                 board.position(text.fen)
+                snd.play();
                 console.log('GET response:');
                 console.log(text.move); 
                 console.log(text.player); 
@@ -299,6 +301,7 @@ async function GET_engine_move(){
          }).then(await function (text) {
              if(text.isgameover == false && reset==false){
                  board.position(text.fen)
+                 snd.play();
                  console.log('GET response:');
                  console.log(text.move); 
                  console.log(text.player); 
@@ -312,6 +315,7 @@ async function GET_engine_move(){
              t1box.style.backgroundColor = "#C8C8C8";
              t1box.style.boxShadow = "none";
              legal_moves = text.legal_moves;
+             
              if(moves === 0){
                  history.innerHTML = "Move History:"
              }
@@ -347,6 +351,8 @@ async function GET_result(){
              
              history.innerHTML = history.innerHTML.concat("<br> <b>" + text.msg + "</b>")
              scrollbox.scrollTop = scrollbox.scrollHeight; 
+             clearInterval(timer1);
+             clearInterval(timer2);
         });
          
     return;
@@ -378,12 +384,16 @@ async function white_move_first(){
 }
 
 function set_names(){
-    let opponent_title = "PRL Self-Trained Model"
-    if (opponent === "datatrain_model.h5"){
-        opponent_title = "PRL Data-Trained Model";
+    let opponent_title = "PCE Self-Trained Model"
+    
+    if (opponent == "2"){
+        opponent_title = "PCE Data-Trained Model";
     }
-    else if (opponent === "combined_model.h5"){
-        opponent_title = "PRL Combined Model";
+    else if (opponent == "3"){
+        opponent_title = "PCE Combined Model";
+    }
+    else if (opponent == "4"){
+        opponent_title = "Stockfish Chess Engine";
     }
     player1.innerHTML = opponent_title;
 }
@@ -399,8 +409,12 @@ function start_timer( secs, mins, color){
         secs.innerHTML = "0" + (secs.innerHTML - 1);
     }
     else{
-        if(m>1){
+        if(m>1 && m<10){
             mins.innerHTML = "0" + (mins.innerHTML - 1);
+            secs.innerHTML = 59;
+        }
+        else if(m>1){
+            mins.innerHTML = mins.innerHTML - 1;
             secs.innerHTML = 59;
         }
         else if( m == 1){
@@ -420,6 +434,7 @@ function start_timer( secs, mins, color){
             if(color === "white"){
                 history.innerHTML = history.innerHTML.concat("<br> <b>White out of time. Black Wins!</b>")
                 scrollbox.scrollTop = scrollbox.scrollHeight;
+                
             }
             else if(color === "black"){
                 history.innerHTML = history.innerHTML.concat("<br> <b>Black out of time. White Wins!</b>")
@@ -427,6 +442,8 @@ function start_timer( secs, mins, color){
             }
             
             isgameover = true;
+            clearInterval(timer1);
+            clearInterval(timer2);
         }
     }
     
@@ -441,10 +458,10 @@ function add_increment(seconds, minutes, increment){
     else{
         diff = parseInt(s + increment - 60);
         if (minutes.innerHTML < 9){
-            minutes.innerHTML = "0" + parseInt(minutes.innerHTML) + 1;
+            minutes.innerHTML = "0" + parseInt(parseInt(minutes.innerHTML) + 1);
         } 
         else{
-            minutes.innerHTML = parseInt(minutes.innerHTML) + 1;
+            minutes.innerHTML = parseInt(parseInt(minutes.innerHTML) + 1);
         }
         seconds.innerHTML = "0" + parseInt(diff);
     }

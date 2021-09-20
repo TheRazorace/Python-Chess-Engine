@@ -1,11 +1,6 @@
 import keras
 from tensorflow.python.keras import layers, activations, models
-from tensorflow.keras.models import load_model
 import tensorflow as tf
-# from fen_transformation import fen_transform
-# from board import Board
-# import numpy as np
-# import tensorflow.keras.backend as keras_be
 
 
 def neural_net():
@@ -122,7 +117,7 @@ def probability_model():
 # model.save("selftrain3_model.h5")
 
 # model = probability_model()
-# model.save("datatrain_probability_model.h5")
+# model.save("selftrain_probability_model.h5")
 # model = probability_model()
 # model.save("combined_probability_model.h5")
 

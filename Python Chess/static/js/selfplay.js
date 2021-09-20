@@ -16,6 +16,7 @@ let t2box = document.getElementById("t2box");
 let timer1;
 let timer2;
 let time_increment = 10;
+let snd = document.getElementById("myAudio"); 
 
 let board = ChessBoard('board', {
    position: starting_fen,
@@ -64,7 +65,7 @@ function reset_board(){
      minutes2.innerHTML = "10";
      seconds1.innerHTML = "00";
      seconds2.innerHTML = "00";
-     setTimeout(() => {  start_button.disabled = false; reset_text.style.display = "none"; }, 2000);
+     setTimeout(() => {  start_button.disabled = false; reset_text.style.display = "none"; }, 5000);
      clearInterval(timer1);
      clearInterval(timer2);
      history.innerHTML = "Move History:"; 
@@ -107,6 +108,7 @@ async function fetch_move(){
                    console.log(text.fen);
                    console.log(text.isgameover)
                    board.position(text.fen)
+                   snd.play();
                    
                }
            
@@ -132,9 +134,9 @@ async function fetch_move(){
            if (isgameover === false && reset === false){
                fetch_move();
            }
-           else{
-               reset_board();
-           }
+           //else{
+           //    reset_board();
+           //}
     });
     }  
     
@@ -149,6 +151,8 @@ async function fetch_move(){
              
              history.innerHTML = history.innerHTML.concat("<br> <b>" + text.msg + "</b>")
              scrollbox.scrollTop = scrollbox.scrollHeight; 
+             clearInterval(timer1);
+             clearInterval(timer2);
     });
     }
     
@@ -156,24 +160,30 @@ async function fetch_move(){
 
 function set_names(){
     
-    let player1_title = "PRL Self-Trained Model"
-    let player2_title = "PRL Self-Trained Model"
+    let player1_title = "PCE Self-Trained Model"
+    let player2_title = "PCE Self-Trained Model"
     
-    if (player1_title === "datatrain_model.h5"){
-        player1_title = "PRL Data-Trained Model";
+    if (model1 == "2"){
+        player1_title = "PCE Data-Trained Model";
     }
-    else if (player1_title === "combined_model.h5"){
-        player1_title = "PRL Combined Model";
+    else if (model1 == "3"){
+        player1_title = "PCE Combined Model";
     }
-    if (player2_title === "datatrain_model.h5"){
-        player2_title = "PRL Data-Trained Model";
+    else if (model1 == "4"){
+        player1_title = "Stockfish Chess Engine";
     }
-    else if (player2_title === "combined_model.h5"){
-        player2_title = "PRL Combined Model";
+    if (model2 == "2"){
+        player2_title = "PCE Data-Trained Model";
+    }
+    else if (model2 == "3"){
+        player2_title = "PCE Combined Model";
+    }
+    else if (model2 == "4"){
+        player2_title = "Stockfish Chess Engine";
     }
     
-    player1.innerHTML = player1_title;
-    player2.innerHTML = player2_title;
+    player2.innerHTML = player1_title;
+    player1.innerHTML = player2_title;
     
 }
 
@@ -188,8 +198,12 @@ function start_timer( secs, mins, color){
         secs.innerHTML = "0" + (secs.innerHTML - 1);
     }
     else{
-        if(m>1){
+        if(m>1 && m<10){
             mins.innerHTML = "0" + (mins.innerHTML - 1);
+            secs.innerHTML = 59;
+        }
+        else if(m>1){
+            mins.innerHTML = mins.innerHTML - 1;
             secs.innerHTML = 59;
         }
         else if( m == 1){
@@ -216,6 +230,8 @@ function start_timer( secs, mins, color){
             }
             
             isgameover = true;
+            clearInterval(timer1);
+            clearInterval(timer2);
         }
     }
     
@@ -230,10 +246,10 @@ function add_increment(seconds, minutes, increment){
     else{
         diff = parseInt(s + increment - 60);
         if (minutes.innerHTML < 9){
-            minutes.innerHTML = "0" + parseInt(minutes.innerHTML) + 1;
+            minutes.innerHTML = "0" + parseInt(parseInt(minutes.innerHTML) + 1);
         } 
         else{
-            minutes.innerHTML = parseInt(minutes.innerHTML) + 1;
+            minutes.innerHTML = parseInt(parseInt(minutes.innerHTML) + 1);
         }
         seconds.innerHTML = "0" + parseInt(diff);
     }

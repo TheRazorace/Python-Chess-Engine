@@ -82,7 +82,7 @@ def get_pgn_data(pgn, batch_size, datagames, combined_games, parsed):
 
 if __name__ == "__main__":
     
-    pgn = open("ficsgamesdb_2002.pgn")
+    pgn = open("ficsgamesdb_2004.pgn")
     eof = False
     batch_size = 50
     batch = 1
@@ -127,7 +127,7 @@ if __name__ == "__main__":
             #   batch_size=32, epochs=15, verbose=1)
             print("\nProbability Model 1:")
             probability_model1.fit([probability_fens, probability_turns], probability_labels,
-              batch_size=100, epochs=15, verbose=1)
+              batch_size=100, epochs=40, verbose=1)
             # print("\nProbability Model 2:")
             # probability_model2.fit([probability_fens, probability_turns], probability_labels,
             #   batch_size=100, epochs=15, verbose=1)
@@ -142,9 +142,9 @@ if __name__ == "__main__":
         file.write(str(new_datagames))
         file.close()
         
-        file = open("combinedgames.txt","w+")
-        file.write(str(new_combined_games))
-        file.close()
+        # file = open("combinedgames.txt","w+")
+        # file.write(str(new_combined_games))
+        # file.close()
         
         file = open("games_parsed.txt","w+")
         file.write(str(new_parsed))

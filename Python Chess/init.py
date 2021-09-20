@@ -1,26 +1,57 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for, redirect, session
 import players   
 from board import Board
-from flask_bootstrap import Bootstrap
+import time
 
 app = Flask(__name__)
-game = Board() 
-mcts1 = None
-mcts2 = None
-model_name1 = "selftrain_model"
-model_name2 = "selftrain_model"
-sims1 = 100
-sims2 = 100
-turns_simed = 10
+app.secret_key = "prlce_secret_key"
 
-def run_app():
-    Bootstrap(app)
+# mcts1 = None
+# mcts2 = None
+# session["mode"]= None
+# session["opponent_model"]= None
+# session["selfplay_model1"]= None
+# session["selfplay_model2"]= None
+# session["time_limit1"]= 5
+# session["time_limit2"]= 5
+# session["turns_simed"]= 10
+player_move = "None"
+game = Board()
+# color = None
+# opp_color = None
+
+def run_app():     
     app.run(debug = True)
 
 
-@app.route('/')
+@app.route('/', methods = ["POST", "GET"])
 def index():
-    return render_template('index.html')
+    #global mode, color, opp_color, opponent_model, selfplay_model1, selfplay_model2
+    session["reset"] = False
+    
+    # game = Board()
+    # with open('data.pkl', 'wb') as output:
+    #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
+    session["time_limit1"]= 13
+    session["time_limit2"]= 13
+
+    if request.method == "POST":
+        session["mode"] = request.form["mode"]
+        session["color"] = request.form["color"]
+        
+        session["opponent_model"] = request.form["opp_model"]
+        session["selfplay_model1"] = request.form["sp_model1"]
+        session["selfplay_model2"] = request.form["sp_model2"]
+        
+        if session["color"] == "White":
+            session["opp_color"] = "Black"
+        else:
+            session["opp_color"] = "White"
+        
+        return redirect(url_for(session["mode"]))
+    else:    
+        return render_template('index.html')
+    
 
 @app.route('/quit')
 def quit():
@@ -30,41 +61,70 @@ def quit():
 
 @app.route('/selfplay')
 def selfplay():
-    global mcts1, model_name1, mcts2, model_name2
+    #global session["mcts1"], selfplay_model1, session["mcts2"], selfplay_model2
+    # global mcts1, mcts2
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
     
-    mcts1 = players.initialize_mcts(model_name1)
-    mcts2 = players.initialize_mcts(model_name2)
+    # mcts1 = players.initialize_mcts(session["selfplay_model1"])
+    # mcts2 = players.initialize_mcts(session["selfplay_model2"])
+    game.reset() 
+    # players.initialize_engine1(session["selfplay_model1"])
+    # players.initialize_engine2(session["selfplay_model2"])
     
-    game.reset()       
-    return render_template('selfplay.html', starting_fen = game.board.fen())
+    # with open('data.pkl', 'wb') as output:
+    #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
+    time.sleep(5)
+           
+    return render_template('selfplay.html',
+                starting_fen = game.board.fen(),
+                model1 = session["selfplay_model1"],
+                model2 = session["selfplay_model2"])
 
 @app.route('/versusplay')
 def versusplay():
-    global mcts1, model_name1
-    
-    mcts1 = players.initialize_mcts(model_name1)
-    game.reset()       
+    #global session["mcts1"], color, opponent_model
+    # global mcts1
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+    # mcts1 = players.initialize_mcts(session["opponent_model"])
+    game.reset()  
+    #players.initialize_engine1(session["opponent_model"])
+    # with open('data.pkl', 'wb') as output:
+    #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
+    time.sleep(5)
+         
     return render_template('versusplay.html',
         starting_fen = game.board.fen(),
-        first_moves = list(move.uci() for move in game.board.legal_moves))
+        first_moves = list(move.uci() for move in game.board.legal_moves),
+        player_color = session["color"].lower(),
+        opponent = session["opponent_model"])
 
 
 @app.route('/selfmove', methods=['GET', 'POST'])
 def selfmove():
-    global mcts1, sims1, mcts2, sims2, turns_simed
+    #global session["mcts1"], time_limit1, session["mcts2"], time_limit2, turns_simed
+    #global mcts1, mcts2
     
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+        
     while not game.board.is_game_over(claim_draw = True):
-        color = game.turn_str(game.board.turn)
-        if color == "White":
-            uci = players.engine_move(game, mcts1, sims1, turns_simed) 
+        turn = game.turn_str(game.board.turn)
+        if turn == "White":
+            #uci = players.engine_move(game, mcts1, session["time_limit1"], session["turns_simed"]) 
+            uci = players.engine_move(game, session["time_limit1"],  session["selfplay_model1"]) 
         else:
-            uci = players.engine_move(game, mcts2, sims2, turns_simed) 
+            #uci = players.engine_move(game, mcts2, session["time_limit2"], session["turns_simed"]) 
+            uci = players.engine_move(game, session["time_limit2"], session["selfplay_model2"]) 
             
         game.move(uci)
+        # with open('data.pkl', 'wb') as output:
+        #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
 
         # GET request
         if request.method == 'GET':
-            message = {'move':uci, 'player': color,
+            message = {'move':uci, 'player': turn,
                        'fen':game.board.fen(), 'isgameover':game.board.is_game_over()}
             return jsonify(message)          
             
@@ -76,19 +136,25 @@ def selfmove():
     game.reset()
     return
 
-player_move = None
 @app.route('/get_player_move', methods=['GET', 'POST'])
 def get_player_move():
+    #global player_move, color, opp_color
     global player_move
-    
-    while game.turn_str(game.board.turn) == "Black":
-        pass
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+    #while game.turn_str(game.board.turn) == session["opp_color"]:
+        #pass
+    while player_move=="None":
+        continue
     game.move(player_move)
     isgameover = game.board.is_game_over()
     
+    # with open('data.pkl', 'wb') as output:
+    #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
+            
     # GET player's move
     if request.method == 'GET':
-        message = {'move':player_move, 'player': "White",
+        message = {'move': player_move, 'player': session["color"],
                    'fen':game.board.fen(), 'isgameover': isgameover}
         return jsonify(message)  
              
@@ -96,19 +162,25 @@ def get_player_move():
 
 @app.route('/get_engine_move', methods=['GET', 'POST'])
 def get_engine_move():
-    global mcts1, sims1, turns_simed
-    
-    while game.turn_str(game.board.turn) == "White":
-        pass
+    #global session["mcts1"], time_limit1, turns_simed, color, opp_color
+    #global mcts1
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+    #while game.turn_str(game.board.turn) == session["color"]:
+        #pass
     isgameover = game.board.is_game_over()
     if not isgameover:
-        engine_move = players.engine_move(game, mcts1, sims1, turns_simed) 
+        #engine_move = players.engine_move(game, mcts1, session["time_limit1"], session["turns_simed"]) 
+        engine_move = players.engine_move(game, session["time_limit1"], session["opponent_model"]) 
         game.move(engine_move)
+        
+        # with open('data.pkl', 'wb') as output:
+        #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
         next_moves = list(move.uci() for move in game.board.legal_moves)
         
         # GET engine's move
         if request.method == 'GET':
-            message = {'move':engine_move, 'player': "Black",
+            message = {'move':engine_move, 'player': session["opp_color"],
                    'fen':game.board.fen(), 'isgameover': isgameover,
                    'legal_moves': next_moves}
             return jsonify(message) 
@@ -117,7 +189,9 @@ def get_engine_move():
 
 @app.route('/get_result', methods=['GET', 'POST'])
 def get_result():
-    
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+        
     isgameover = game.board.is_game_over()
     if isgameover:
         result, msg = check_result()
@@ -126,21 +200,37 @@ def get_result():
             return jsonify(message)
         
     return
+
     
 @app.route('/reset', methods=['GET','POST'])
 def reset():
-    global mcts1, model_name1, mcts2, model_name2
-    
-    mcts1 = players.initialize_mcts(model_name1)
-    if model_name2 is not None:
-        mcts2 = players.initialize_mcts(model_name2)
-    
+    #global opponent_model, session["mcts1"], selfplay_model1, session["mcts2"], selfplay_model2, mode
+    #global mcts1, mcts2
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+        
     if request.method == "POST":
+        
+        # if session["mode"] == "versusplay":
+        #     #mcts1 = players.initialize_mcts(session["opponent_model"])
+        #     players.initialize_engine1(session["opponent_model"])
+        
+        # else:
+        #     # mcts1 = players.initialize_mcts(session["selfplay_model1"])
+        #     # mcts2 = players.initialize_mcts(session["selfplay_model2"])
+        #     players.initialize_engine1(session["selfplay_model1"])
+        #     players.initialize_engine2(session["selfplay_model2"])
+        # time.sleep(3)
 
         req = request.get_json()
         if req.get("reset") == "true":
             game.reset()
+            time.sleep(5)
+            # with open('data.pkl', 'wb') as output:
+            #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
         return req.get("reset"), 200
+
+    
     
 @app.route('/post_move', methods=['GET','POST'])
 def post_move():
@@ -150,27 +240,34 @@ def post_move():
         req = request.get_json()
         player_move = req.get("move")
         return player_move, 200
+
     
 def check_result():
     
+    # with open('data.pkl', 'rb') as input:
+    #     game = pickle.load(input)
+        
     result = "draw"
     if game.board.is_checkmate():
-        msg = "checkmate: " + game.turn_str(not game.board.turn) + " wins!"
+        msg = "Checkmate: " + game.turn_str(not game.board.turn) + " wins!"
         result = not game.board.turn
     elif game.board.is_stalemate():
-        msg = "draw: stalemate"
+        msg = "Draw: Stalemate"
     elif game.board.is_fivefold_repetition():
-        msg = "draw: 5-fold repetition"
+        msg = "Draw: 5-fold repetition"
     elif game.board.is_insufficient_material():
-        msg = "draw: insufficient material"
+        msg = "Draw: Insufficient material"
     elif game.board.can_claim_draw():
-        msg = "draw: claim"
+        msg = "Draw: Claim"
         
     return result, msg
     
         
 
 if __name__ == "__main__":
+    # with open('data.pkl', 'wb') as output:
+    #     game = Board()
+    #     pickle.dump(game, output, pickle.HIGHEST_PROTOCOL)
     run_app()
     
 
