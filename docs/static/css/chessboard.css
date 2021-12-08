@@ -1,0 +1,142 @@
+body, html{
+    margin: 0;
+    padding: 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.mine{
+    background-color: #a38560;
+    background-image: linear-gradient(315deg, #a38560 0%, #e0d4ae 74%);
+    background-position: center;
+    width: 100%;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.row{
+    justify-content: center;
+    font-size: 2em;
+    padding: 2px ; 
+}
+
+h3 {
+    margin: 20px;
+    text-align: left;
+    justify-content: left;
+}
+
+h6{
+    margin: 10px;
+}
+
+span{
+    font-size: 20px;
+}
+
+.log-box{
+    border-radius: 30px;
+    margin: 0px 66px 0px 66px;
+    background-color: #c3cbdc;
+    background-image: linear-gradient(147deg, #c3cbdc 0%, #edf1f4 74%);   
+}
+
+.p1-box{
+    background-color: #d2d8d6;
+    background-image: linear-gradient(315deg, #d2d8d6 0%, #dce8e0 74%);
+    border-radius: 40px;
+    border-bottom: solid black;
+}
+
+.p1-box:hover, .p2-box:hover{
+    background-color: #e4eee9;
+    background-image: linear-gradient(315deg, #e4eee9 0%, #93a5ce 74%);
+
+}
+
+.p2-box{
+    background-color: #d2d8d6;
+    background-image: linear-gradient(315deg, #d2d8d6 0%, #dce8e0 74%);
+    border-radius: 40px;
+    border-top: solid black;
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+p{
+    font-size: 16px;
+}
+
+#scrollbox{
+    padding: 10px;
+    background-color: inherit;
+    border-radius: 10px;
+}
+
+.timer-box{
+    background-color: #C8C8C8;
+    border-radius: 5px;
+    margin-left: 30%;
+    margin-right: 30%;
+    box-shadow: none;
+}
+
+.timer-box-bottom{
+    position:absolute;
+    bottom: 37px;
+    right: 3px;
+    width: 37%;
+}
+
+.clearfix-7da63 {
+  clear: both;
+}
+
+.board-b72b1 {
+  border: 2px solid #404040;
+  box-sizing: content-box;
+}
+
+.square-55d63 {
+  float: left;
+  position: relative;
+
+  /* disable any native browser highlighting */
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+.white-1e1d7 {
+  background-color: #f0d9b5;
+  color: #b58863;
+}
+
+.black-3c85d {
+  background-color: #b58863;
+  color: #f0d9b5;
+}
+
+.highlight1-32417, .highlight2-9c5d2 {
+  box-shadow: inset 0 0 3px 3px yellow;
+}
+
+.notation-322f9 {
+  cursor: default;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  position: absolute;
+}
+
+.alpha-d2270 {
+  bottom: 1px;
+  right: 3px;
+}
+
+.numeric-fc462 {
+  top: 2px;
+  left: 2px;
+}
