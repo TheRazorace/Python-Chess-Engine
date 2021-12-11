@@ -1,4 +1,4 @@
-# Python-Chess-Engine
+# Python Chess Engine
 
 This project is about three chess engines (Python Machine Learning Chess Engine) based
 on machine learning, and more specifically on reinforcement and supervised learning, as
