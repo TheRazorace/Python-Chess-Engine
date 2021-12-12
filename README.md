@@ -29,7 +29,7 @@ Monte Carlo tree search was used to analyze the game tree and decide which is th
 Chess engines ELO were estimated at around 1300-1450, after facing off different versions of the Stockfish chess engine on lichess.com. 
     
     
-Apart from the chess engines, a website was created for the purpose of giving the user the opportunity to play against them or watch them play against each other. The website was created using, Python (Flask API), HTML5, CSS and Javascript
+Apart from the chess engines, a website was created for the purpose of giving the user the opportunity to play against them or watch them play against each other. The website was created using, Python (Flask API), HTML5, CSS and Javascript.
     
 ![image](https://user-images.githubusercontent.com/49875599/145676991-fd876ab5-1eef-40bc-ab0a-49a663dba9ca.png)
    
