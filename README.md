@@ -7,7 +7,7 @@ but also to watch them play against each other. The chess engines were
 developed using Python programming language. In total, three different game models 
 were created, a model that was trained by playing games against itself, a model that 
 was trained with data from past professional games stored in online databases and a 
-combinational model that was trained using both methods. The models consist of convlolutional and fully connected layers. The engines’ choice of 
+combinational model that was trained using both methods. The models consist of convolutional and fully connected layers. The engines’ choice of 
 move is made using Monte Carlo Tree Search, which is a heuristic algorithm for certain 
 types of decision-making processes. In addition, a web application was created that 
 allows the user to play against the engines, but also to watch the engines play against 
